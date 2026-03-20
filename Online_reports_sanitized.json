@@ -1,0 +1,365 @@
+{
+  "name": "Online reports",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "get-reports",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        -400
+      ],
+      "id": "248cb2e6-95e1-4227-aa70-86145651e125",
+      "name": "Webhook",
+      "webhookId": "53c2a4d4-43c7-42f9-82f1-59845338e8b0"
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/reports",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "=eq.{{$json.query.phone}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Authorization ",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -80,
+        -400
+      ],
+      "id": "d138b3c9-4cc9-4cb0-97f3-06aa8acaaa7f",
+      "name": "HTTP Request",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, data: $json }) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        144,
+        -400
+      ],
+      "id": "06ac994b-6051-4d1a-943f-97baa98ad52e",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "add-report",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        -240
+      ],
+      "id": "ab13f775-54ca-4e8c-ab69-ce85de82b5d2",
+      "name": "Webhook1",
+      "webhookId": "f81584f0-ad9b-477e-92b5-08b430990fc8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/reports",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Authorization",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"phone\": \"={{ $json.body.phone }}\",\n \"report_name\": \"={{ $json.body.report_name }}\",\n \"report_url\": \"={{ $json.body.report_url }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -80,
+        -224
+      ],
+      "id": "e013bb19-ad13-4269-b399-e38f93e4cf7f",
+      "name": "HTTP Request1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseKey": "{  \"status\": \"Report saved successfully\" }"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        160,
+        -224
+      ],
+      "id": "ddebad36-24e9-4ab1-a027-51a14b9a8fcd",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "path": " get-patient-profile",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -336,
+        -48
+      ],
+      "id": "2a4f788b-cc8b-400d-817d-ec8c503173b6",
+      "name": "Webhook2",
+      "webhookId": "80fa0418-c9b7-42fc-b8a4-4770716611af",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/patients",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id,full_name,age,phone,email"
+            },
+            {
+              "name": "phone",
+              "value": "=eq.{{$json.query.phone}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Authorization",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -128,
+        -32
+      ],
+      "id": "32d42480-d0e9-49da-b1be-e2edfc4582a3",
+      "name": "HTTP Request2",
+      "alwaysOutputData": true,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "0d80ff98-c2e0-4443-8b54-7bc43185bb63",
+      "name": "Respond to Webhook2",
+      "alwaysOutputData": true,
+      "disabled": true
+    }
+  ],
+  "pinData": {
+    "Webhook2": [
+      {
+        "json": {
+          "name": "First item",
+          "code": 1
+        }
+      },
+      {
+        "json": {
+          "name": "Second item",
+          "code": 2
+        }
+      }
+    ],
+    "Webhook1": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.faridaqaisar.site",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
+            "content-length": "152",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+            "content-type": "application/json",
+            "origin": "https://smile-scape-builder.lovable.app",
+            "priority": "u=1, i",
+            "referer": "https://smile-scape-builder.lovable.app/",
+            "sec-ch-ua": "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-forwarded-for": "103.253.18.208",
+            "x-forwarded-host": "n8n.faridaqaisar.site",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ff71e4ccd5c5",
+            "x-real-ip": "103.253.18.208"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "report_name": "x ray",
+            "report_url": "https://t3.ftcdn.net/jpg/04/86/73/52/240_F_486735283_VNOsu8BodnbVDaGN9vBBp4MWO0BIi29F.jpg",
+            "phone": "+923036298115"
+          },
+          "webhookUrl": "https://n8n.faridaqaisar.site/webhook/add-report",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "592dfb1a-414a-41bb-b1e3-7bfbc23f74ee",
+  "meta": {
+    "instanceId": "5042a90c563d96f608c055878127823db4c0f0a359b706a2f776c8efa4137849"
+  },
+  "id": "qCxw3uty6Z6c7fYT",
+  "tags": []
+}

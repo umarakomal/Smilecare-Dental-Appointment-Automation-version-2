@@ -1,0 +1,53 @@
+{
+  "name": "VAPI for team",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_API_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{SUPABASE_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "{{SUPABASE_API_KEY}}"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{SUPABASE_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

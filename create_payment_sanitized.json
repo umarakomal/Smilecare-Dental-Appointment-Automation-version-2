@@ -1,0 +1,471 @@
+{
+  "name": "create-payment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create-payment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        -96
+      ],
+      "id": "86b03bd9-99e3-42fa-8428-e72edff643d3",
+      "name": "Webhook",
+      "webhookId": "53112eba-7f4d-4438-b784-ce12b7344038"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mode",
+              "value": "payment"
+            },
+            {
+              "name": "success_url",
+              "value": "https://smile-scape-builder.lovable.app/payment-success"
+            },
+            {
+              "name": "cancel_url",
+              "value": "https://smile-scape-builder.lovable.app/payment-cancelled"
+            },
+            {
+              "name": "line_items[0][price_data][currency]",
+              "value": "={{$json[\"currency\"]}}"
+            },
+            {
+              "name": "line_items[0][price_data][product_data][name]",
+              "value": "Dental Appointment"
+            },
+            {
+              "name": "line_items[0][price_data][unit_amount]",
+              "value": "={{$json[\"amount\"]}}"
+            },
+            {
+              "name": "line_items[0][quantity]",
+              "value": "1"
+            },
+            {
+              "name": "metadata[appointment_id]",
+              "value": "={{$json[\"appointment_id\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -128,
+        -96
+      ],
+      "id": "ccb7b19f-9b92-40b8-8d0f-1e8196ce360d",
+      "name": "Create Stripe Checkout",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ad86b8c-7491-4377-b551-4d6717af6574",
+              "name": "appointment_id",
+              "value": "={{$json[\"body\"][\"appointment_id\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "4ff61187-85bb-4a04-acd2-6f1c7f289940",
+              "name": "amount",
+              "value": "={{$json[\"body\"][\"amount\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "73f75fe2-11d3-4482-a6de-54e425797c2d",
+              "name": "currency",
+              "value": "={{$json[\"body\"][\"currency\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        -96
+      ],
+      "id": "cd502474-0c1d-4c61-ba77-f30c19716c7d",
+      "name": "Prepare Data",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/payments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Authorization",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n \"appointment_id\": \"{{$node['Prepare Data'].json.appointment_id}}\",\n \"stripe_session_id\": \"{{$json.id}}\",\n \"payment_url\": \"{{$json.url}}\",\n \"amount\": {{$node['Prepare Data'].json.amount}},\n \"currency\": \"{{$node['Prepare Data'].json.currency}}\",\n \"payment_status\": \"pending\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        80,
+        -96
+      ],
+      "id": "ae1e3c85-3a1a-4b51-bf6e-f3ed62615a37",
+      "name": "Save Payment (Supabase)",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"url\": \"{{$json['payment_url']}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        -96
+      ],
+      "id": "9c943595-c7b7-4024-a255-49ebf90a91ac",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-payment-success",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -464,
+        144
+      ],
+      "id": "2bc8ceae-1c60-4db5-894d-9e9688744506",
+      "name": "Stripe Webhook",
+      "webhookId": "7ec21fa6-ac2a-4b27-97f5-6b628f9f9422"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5952a12e-b343-4edf-9e86-cb2c25b770d8",
+              "leftValue": "={{$json[\"body\"][\"type\"]}}",
+              "rightValue": "checkout.session.completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        144
+      ],
+      "id": "4a7ddb66-0b3a-4ce5-9601-ce562ea5abff",
+      "name": "Check Stripe Event"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://aanfvjptvtawcazaaadg.supabase.co/rest/v1/payments",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "stripe_session_id",
+              "value": "={{ 'eq.' + $json[\"body\"][\"session_id\"] }}\n"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Authorization",
+              "value": "***REDACTED***"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n \"payment_status\": \"paid\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -48,
+        48
+      ],
+      "id": "093d1358-2e5c-4544-8e6d-ee8abba3b586",
+      "name": "Update Payment Status",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n \"status\": \"payment updated\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        160,
+        48
+      ],
+      "id": "cd8073fc-61d5-4000-b177-494895365b99",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n \"message\": \"Event ignored\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -48,
+        240
+      ],
+      "id": "eafe485d-b100-49d1-a835-8159135e733d",
+      "name": "Respond to Webhook2"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.faridaqaisar.site",
+            "user-agent": "Deno/2.1.4 (variant; SupabaseEdgeRuntime/1.71.1)",
+            "content-length": "89",
+            "accept": "*/*",
+            "accept-encoding": "gzip,br",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "traceparent": "00-471828b0f9d49e302b427c102ea6c170-7a81e64e745cd772-01",
+            "x-forwarded-for": "54.254.138.152",
+            "x-forwarded-host": "n8n.faridaqaisar.site",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ff71e4ccd5c5",
+            "x-real-ip": "54.254.138.152"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "appointment_id": "a9f05683-c8c1-4c48-9fec-e1f62ba58399",
+            "amount": 18000,
+            "currency": "usd"
+          },
+          "webhookUrl": "https://n8n.faridaqaisar.site/webhook/create-payment",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Stripe Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.faridaqaisar.site",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+            "content-length": "157",
+            "accept": "*/*",
+            "accept-encoding": "deflate, gzip",
+            "content-type": "application/json",
+            "x-forwarded-for": "64.227.21.251",
+            "x-forwarded-host": "n8n.faridaqaisar.site",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ff71e4ccd5c5",
+            "x-real-ip": "64.227.21.251"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "type": "checkout.session.completed",
+            "data": {
+              "object": {
+                "id": "cs_test_a1BNEnYYptMjug7t1QeFPG5f5MwC7TRS3R3HMycXKFrnXmZW6x0CMsDR1n"
+              }
+            }
+          },
+          "webhookUrl": "https://n8n.faridaqaisar.site/webhook/stripe-payment-success",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Create Stripe Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe Checkout": {
+      "main": [
+        [
+          {
+            "node": "Save Payment (Supabase)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Payment (Supabase)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check Stripe Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Stripe Event": {
+      "main": [
+        [
+          {
+            "node": "Update Payment Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Payment Status": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e70ded37-03d7-4542-b2e8-8ecfd03f33a6",
+  "meta": {
+    "instanceId": "5042a90c563d96f608c055878127823db4c0f0a359b706a2f776c8efa4137849"
+  },
+  "id": "eXBekLEZ8XcdWqfb",
+  "tags": []
+}
